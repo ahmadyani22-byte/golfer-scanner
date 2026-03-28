@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Golfer Scanner — Tipe Golfer Apa Kamu?</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛳</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#16A34A;--green-light:#22C55E;--green-dark:#15803D;
+  --lime:#84CC16;--lime-light:#A3E635;--neon:#39FF14;
+  --fairway:#2D8B4E;--fairway-light:#3DA562;
+  --navy:#0F172A;--navy-light:#1E293B;
+  --white:#FFFFFF;--gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;--gray-300:#CBD5E1;--gray-400:#94A3B8;--gray-500:#64748B;
+  --yellow:#FACC15;--orange:#FB923C;--red:#EF4444;
+  --sand:#D4A84B;--sand-light:#E8C97A;
+  --sky-top:#1B4B7A;--sky-mid:#2B6DA8;--sky-bottom:#7EC8E3;
+  --radius:16px;--radius-sm:10px;--radius-xs:8px;
+  --shadow:0 4px 24px rgba(0,0,0,0.1);--shadow-lg:0 8px 40px rgba(0,0,0,0.15);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#1a3a2a;color:var(--navy);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.golf-bg{position:fixed;inset:0;z-index:0;overflow:hidden}
+.golf-bg .sky{position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 40%,var(--sky-bottom) 80%,#B5E4D0 100%)}
+.golf-bg .clouds{position:absolute;top:5%;width:100%;height:30%}
+.cloud{position:absolute;background:rgba(255,255,255,0.25);border-radius:50%;filter:blur(20px)}
+.golf-bg .fairway-bg{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(180deg,#3DA562 0%,#2D8B4E 30%,#256F3E 60%,#1E5A33 100%)}
+.golf-bg .fairway-bg::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,0.02) 0px,rgba(255,255,255,0.02) 30px,transparent 30px,transparent 60px)}
+.golf-bg .bunker-deco{position:absolute;border-radius:50%;background:radial-gradient(ellipse,var(--sand-light),var(--sand));opacity:0.35}
+.golf-bg .green-patch{position:absolute;border-radius:50%;background:radial-gradient(ellipse,#3CAF5C,var(--fairway));opacity:0.3}
+.flag-deco{position:absolute;z-index:1}
+.flag-pole{width:2px;height:36px;background:linear-gradient(180deg,#ddd,#999)}
+.flag-cloth{width:14px;height:9px;background:var(--red);position:absolute;top:0;left:2px;clip-path:polygon(0 0,100% 30%,0 100%);animation:flagWave 2s ease-in-out infinite alternate}
+@keyframes flagWave{0%{clip-path:polygon(0 0,100% 30%,0 100%)}100%{clip-path:polygon(0 0,100% 20%,0 90%)}}
+.flag-hole{width:8px;height:3px;background:rgba(0,0,0,0.25);border-radius:50%;margin:-1px auto 0}
+@keyframes driftCloud{0%{transform:translateX(-200px)}100%{transform:translateX(calc(100vw + 200px))}}
+.golf-ball-float{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.golf-ball-float div{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#e8e8e8,#ccc);box-shadow:0 2px 6px rgba(0,0,0,0.15);opacity:0.25;animation:floatBall linear infinite}
+@keyframes floatBall{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:0.25}90%{opacity:0.25}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+.hero{position:relative;z-index:1;overflow:hidden;padding:44px 20px 56px;text-align:center}
+.hero::after{content:"";position:absolute;bottom:-2px;left:0;right:0;height:24px;background:linear-gradient(180deg,transparent,rgba(30,90,51,0.6));z-index:2}
+.hero-content{position:relative;z-index:3;max-width:440px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:var(--white);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:50px;margin-bottom:16px;animation:fadeDown 0.6s ease both;backdrop-filter:blur(8px)}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.hero-emoji{font-size:52px;margin-bottom:8px;animation:bounceIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both 0.1s;display:block;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3))}
+@keyframes bounceIn{from{opacity:0;transform:scale(0) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.hero h1{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;line-height:1;color:var(--white);margin-bottom:6px;animation:fadeDown 0.6s ease both 0.2s;text-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.hero h1 span{background:linear-gradient(135deg,var(--yellow),var(--lime-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:14px;color:rgba(255,255,255,0.7);font-weight:400;animation:fadeDown 0.6s ease both 0.35s}
+.app{max-width:440px;margin:0 auto;padding:0 16px 40px;position:relative;z-index:3}
+.card{background:rgba(255,255,255,0.93);border-radius:var(--radius);padding:20px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.3);animation:slideUp 0.5s ease both;backdrop-filter:blur(16px)}
+.card:nth-child(2){animation-delay:0.08s}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.card-icon{width:32px;height:32px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-icon.scan{background:linear-gradient(135deg,var(--green),var(--green-dark))}
+.card-icon.type{background:linear-gradient(135deg,var(--lime),var(--green-light))}
+.card-icon.how{background:linear-gradient(135deg,var(--sky-mid),var(--sky-top))}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy)}
+.photo-area{position:relative;border:2px dashed var(--gray-300);border-radius:14px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;cursor:pointer;transition:all 0.3s;background:var(--gray-50)}
+.photo-area:hover{border-color:var(--green);background:rgba(22,163,74,0.04)}
+.photo-area.has-photo{border-style:solid;border-color:var(--green);background:var(--navy)}
+.photo-area img{width:100%;height:260px;object-fit:cover;border-radius:12px}
+.upload-icon-wrap{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--lime));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(22,163,74,0.3)}
+.upload-text{font-size:13px;color:var(--gray-500)}
+.upload-text strong{color:var(--green);font-weight:600}
+.photo-btns{display:flex;gap:8px;margin-top:4px}
+.photo-btn{padding:8px 18px;border-radius:50px;border:1px solid var(--gray-300);background:var(--white);color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.photo-btn:hover{background:var(--green);color:var(--white);border-color:var(--green)}
+.change-photo{display:none;margin-top:8px;text-align:center}
+.change-photo.active{display:block}
+.change-photo button{padding:6px 16px;border-radius:50px;border:1px solid var(--gray-300);background:var(--white);color:var(--gray-500);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.gender-toggle{display:flex;gap:6px;background:var(--gray-100);border-radius:12px;padding:4px}
+.gender-opt{flex:1;padding:12px;border:none;border-radius:var(--radius-xs);background:transparent;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray-400);cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:6px}
+.gender-opt.active{background:var(--white);color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.generate-btn{width:100%;padding:16px;border:none;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:1px;border-radius:14px;cursor:pointer;box-shadow:0 6px 24px rgba(22,163,74,0.4);transition:all 0.2s;position:relative;overflow:hidden}
+.generate-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.15) 50%,transparent 60%);transform:translateX(-100%);transition:transform 0.6s}
+.generate-btn:hover::before{transform:translateX(100%)}
+.generate-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(22,163,74,0.5)}
+.generate-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shadow:none}
+.progress{display:none;text-align:center;padding:40px 20px}
+.progress.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.spinner-wrap{width:64px;height:64px;margin:0 auto 16px}
+.spinner-ball{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#fff,#f0f0f0,#ddd,#ccc);box-shadow:inset -3px -3px 8px rgba(0,0,0,0.12),0 4px 16px rgba(0,0,0,0.2);animation:ballRoll 1.2s linear infinite}
+@keyframes ballRoll{to{transform:rotate(360deg)}}
+.progress-text{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:0.5px}
+.progress-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px}
+
+/* === RESULT WITH FUTURISTIC FRAME === */
+.result{display:none}
+.result.active{display:block;animation:resultIn 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes resultIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+.frame-wrap{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 0 30px rgba(57,255,20,0.15),0 8px 40px rgba(0,0,0,0.3);border:2px solid rgba(57,255,20,0.3)}
+.frame-header{background:linear-gradient(135deg,#0a0f1a,#0f1a2e);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.frame-header::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--neon),transparent)}
+.frame-brand{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--neon)}
+.frame-badge{font-size:10px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.frame-image{width:100%;display:block}
+.frame-bottom{background:linear-gradient(135deg,#0a0f1a,#101d30);padding:18px 16px 14px;position:relative;overflow:hidden}
+.frame-bottom::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--neon),transparent)}
+.frame-bottom::after{content:"";position:absolute;top:0;right:0;width:80px;height:100%;background:linear-gradient(135deg,transparent 40%,rgba(57,255,20,0.03));clip-path:polygon(30% 0,100% 0,100% 100%,0 100%)}
+.frame-type-name{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;text-transform:uppercase;color:var(--white);letter-spacing:0.5px;line-height:1.1;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.frame-type-name .accent-line{width:4px;height:22px;background:var(--neon);border-radius:2px;flex-shrink:0;box-shadow:0 0 8px rgba(57,255,20,0.5)}
+.frame-quote{font-size:13px;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.4;margin-bottom:10px;padding-left:12px;border-left:2px solid rgba(57,255,20,0.2)}
+.frame-footer{display:flex;align-items:center;justify-content:space-between}
+.frame-credit{font-size:10px;color:rgba(57,255,20,0.6);font-weight:700;letter-spacing:0.5px}
+.frame-emoji{font-size:14px}
+
+.result-actions{display:flex;gap:8px;margin-top:12px}
+.result-actions button{flex:1;padding:12px 8px;border:none;border-radius:var(--radius-xs);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.3px}
+.result-actions button:hover{transform:translateY(-1px)}
+.btn-download{background:var(--green);color:var(--white)}
+.btn-share{background:rgba(37,211,102,0.1);color:#25D366;border:1px solid rgba(37,211,102,0.2)!important}
+.btn-retry{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.12)!important}
+
+.counter{text-align:center;margin-top:16px}
+.counter-bar{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);border-radius:50px;padding:8px 16px;backdrop-filter:blur(8px)}
+.counter-dots{display:flex;gap:3px}
+.counter-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15)}
+.counter-dot.used{background:var(--green-light)}
+.counter-dot.used.warn{background:var(--orange)}
+.counter-dot.used.danger{background:var(--red)}
+.counter-text{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5)}
+.subscribe-hint{display:none;text-align:center;margin-top:8px;font-size:12px;color:rgba(255,255,255,0.5)}
+.subscribe-hint a{color:var(--lime-light);font-weight:600;text-decoration:none}
+.subscribe-hint.active{display:block}
+.error-msg{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#fca5a5;border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;font-weight:500;margin-bottom:12px;text-align:center;backdrop-filter:blur(8px)}
+.error-msg.active{display:block;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+.how-to{animation:slideUp 0.5s ease both 0.3s}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-content{flex:1}
+.step-title{font-weight:700;font-size:13px;color:var(--navy);margin-bottom:2px}
+.step-desc{font-size:12px;color:var(--gray-500);line-height:1.5}
+.tips-box{margin-top:14px;background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(132,204,22,0.06));border:1px solid rgba(22,163,74,0.15);border-radius:12px;padding:12px 14px}
+.tips-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--green);margin-bottom:6px}
+.tips-list{font-size:11px;color:var(--gray-500);line-height:1.7}
+
+.footer{text-align:center;margin-top:28px;padding-bottom:24px}
+.footer-credit{font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:6px;font-weight:500}
+.footer-credit a{color:var(--lime-light);font-weight:700;text-decoration:none}
+.footer-powered{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.5px;text-transform:uppercase;font-weight:600}
+.hidden{display:none}
+
+/* Canvas for download - hidden */
+#downloadCanvas{display:none}
+
+/* === RESPONSIVE === */
+@media(min-width:768px){
+  .hero{padding:56px 24px 68px}
+  .hero-emoji{font-size:64px}
+  .hero h1{font-size:48px}
+  .hero p{font-size:16px}
+  .app{max-width:520px;padding:0 20px 60px}
+  .card{padding:24px;margin-bottom:16px;border-radius:20px}
+  .generate-btn{padding:18px;font-size:20px}
+  .frame-type-name{font-size:28px}
+  .frame-quote{font-size:14px}
+}
+@media(min-width:1024px){
+  .hero{padding:64px 32px 80px}
+  .hero h1{font-size:56px}
+  .app{max-width:560px}
+  .card{padding:28px;border-radius:22px}
+  .generate-btn{padding:20px;font-size:22px;border-radius:18px}
+  .frame-type-name{font-size:30px}
+  .result-actions button{padding:14px 10px;font-size:14px}
+}
+@media(max-width:380px){
+  .hero{padding:32px 14px 44px}
+  .hero h1{font-size:32px}
+  .app{padding:0 12px 40px}
+  .card{padding:16px}
+  .generate-btn{padding:14px;font-size:16px}
+  .frame-type-name{font-size:20px}
+  .frame-quote{font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="golf-bg">
+  <div class="sky"><div class="clouds">
+    <div class="cloud" style="width:180px;height:50px;top:10%;left:5%;animation:driftCloud 40s linear infinite"></div>
+    <div class="cloud" style="width:120px;height:35px;top:25%;left:55%;animation:driftCloud 55s linear infinite 10s"></div>
+    <div class="cloud" style="width:200px;height:45px;top:5%;left:30%;animation:driftCloud 50s linear infinite 5s"></div>
+  </div></div>
+  <div class="fairway-bg">
+    <div class="bunker-deco" style="width:80px;height:30px;bottom:25%;right:8%"></div>
+    <div class="bunker-deco" style="width:50px;height:20px;bottom:45%;left:5%"></div>
+    <div class="green-patch" style="width:100px;height:70px;bottom:35%;left:25%"></div>
+  </div>
+  <div class="flag-deco" style="bottom:48%;left:32%"><div class="flag-cloth"></div><div class="flag-pole"></div><div class="flag-hole"></div></div>
+  <div class="flag-deco" style="bottom:62%;right:25%"><div class="flag-cloth"></div><div class="flag-pole"></div><div class="flag-hole"></div></div>
+</div>
+<div class="golf-ball-float" id="golfBalls"></div>
+
+<div class="hero"><div class="hero-content">
+  <div class="hero-badge">⛳ Golf Scanner AI</div>
+  <span class="hero-emoji">🏌️</span>
+  <h1>Golfer Tipe Apa <span>Kamu?</span></h1>
+  <p>Upload selfie, discover your golfer persona!</p>
+</div></div>
+
+<div class="app">
+  <div class="card">
+    <div class="card-header"><div class="card-icon scan">📸</div><div class="card-title">Scan Wajahmu</div></div>
+    <div class="photo-area" id="photoArea" onclick="document.getElementById('fileInput').click()">
+      <div id="photoPlaceholder"><div style="text-align:center">
+        <div class="upload-icon-wrap">📷</div>
+        <div class="upload-text" style="margin-top:10px">Tap untuk <strong>upload selfie</strong></div>
+        <div class="photo-btns">
+          <button class="photo-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Gallery</button>
+          <button class="photo-btn" onclick="event.stopPropagation();openCamera()">Camera</button>
+        </div>
+      </div></div>
+      <img id="preview" class="hidden" alt="Preview">
+    </div>
+    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFile(this)">
+    <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handleFile(this)">
+    <div class="change-photo" id="changePhoto"><button onclick="document.getElementById('fileInput').click()">📷 Ganti Foto</button></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-icon type">🎯</div><div class="card-title">Pilih Gender</div></div>
+    <div class="gender-toggle">
+      <button class="gender-opt active" onclick="selectGender(this,'male')">🏌️‍♂️ Men</button>
+      <button class="gender-opt" onclick="selectGender(this,'female')">🏌️‍♀️ Ladies</button>
+    </div>
+  </div>
+  <div class="error-msg" id="errorMsg"></div>
+  <button class="generate-btn" id="generateBtn" onclick="generate()">⛳ Scan Tipe Golfer</button>
+  <div class="progress" id="progress">
+    <div class="spinner-wrap"><div class="spinner-ball"></div></div>
+    <div class="progress-text" id="progressText">Analyzing your swing DNA...</div>
+    <div class="progress-sub" id="progressSub">Estimated 20-40 seconds</div>
+  </div>
+
+  <!-- RESULT WITH FUTURISTIC FRAME -->
+  <div class="result" id="resultSection">
+    <div class="frame-wrap" id="frameWrap">
+      <div class="frame-header">
+        <div class="frame-brand">⛳ Golfer Scanner AI</div>
+        <div class="frame-badge">Your Type</div>
+      </div>
+      <img class="frame-image" id="resultImage" alt="Golfer Portrait" crossorigin="anonymous">
+      <div class="frame-bottom">
+        <div class="frame-type-name"><div class="accent-line"></div><span id="resultName"></span></div>
+        <div class="frame-quote" id="resultQuote"></div>
+        <div class="frame-footer">
+          <div class="frame-credit">@the.holy.swing</div>
+          <div class="frame-emoji">🏌️⛳</div>
+        </div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="btn-download" onclick="downloadWithFrame()">💾 Save</button>
+      <button class="btn-share" onclick="shareWA()">📤 Share</button>
+      <button class="btn-retry" onclick="resetUI()">🔄 Again</button>
+    </div>
+  </div>
+
+  <canvas id="downloadCanvas"></canvas>
+
+  <div class="counter" id="counter"></div>
+  <div class="subscribe-hint" id="subscribeHint">Limit tercapai! <a href="#">Subscribe</a> untuk unlimited scans ⛳</div>
+
+  <div class="card how-to" style="margin-top:20px">
+    <div class="card-header"><div class="card-icon how">📖</div><div class="card-title">Cara Pakai</div></div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Upload Selfie</div><div class="step-desc">Pilih foto wajah yang jelas dan terang dari gallery atau camera.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Pilih Gender</div><div class="step-desc">Men atau Ladies untuk tipe golfer yang sesuai.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Tap "Scan Tipe Golfer"</div><div class="step-desc">AI generate foto kamu sebagai tipe golfer random. ~30 detik.</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Save & Share!</div><div class="step-desc">Download dengan frame keren langsung siap share ke WA/IG!</div></div></div>
+    </div>
+    <div class="tips-box">
+      <div class="tips-title">💡 Tips Foto Terbaik</div>
+      <div class="tips-list">✅ Close-up wajah yang jelas<br>✅ Pencahayaan terang & merata<br>✅ Wajah menghadap depan<br>❌ Hindari foto gelap, blur, kacamata hitam</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer-credit">created by <a href="https://instagram.com/the.holy.swing" target="_blank">@the.holy.swing</a></div>
+    <div class="footer-powered">Powered by Golf Scanner AI</div>
+  </div>
+</div>
+
+<script>
+(function(){var c=document.getElementById('golfBalls');for(var i=0;i<8;i++){var b=document.createElement('div');var s=Math.random()*8+8;b.style.cssText='width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;animation-duration:'+(Math.random()*12+10)+'s;animation-delay:'+(Math.random()*10)+'s';c.appendChild(b)}})();
+
+var CAM="CRITICAL: Do NOT change the face at all. Keep the exact same face shape, eyes, nose, mouth, eyebrows, skin tone, skin texture, facial structure and all facial features 100% identical to the original photo. Only change the outfit, background, props and body pose. Photorealistic candid sports photograph, natural lighting, ultra detailed, 8k";
+var GOLFER_TYPES={
+  male:[
+    {name:"Back Nine Hero",quote:"Front 9 pemanasan doang bro",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf cap. Change the background to a realistic golf course green. Put a golf scorecard in their hand showing scores. Make their expression an exaggerated awkward proud smile. "+CAM},
+    {name:"The Iron Man",quote:"Driver? Gak kenal.",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf course tee box holding an iron club ready to swing. Add two friends in the background holding drivers looking confused and laughing. "+CAM},
+    {name:"The Risk Taker",quote:"Yakin nih? YOLO!",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf course next to a water hazard, holding a golf club mid-swing. Make their expression very nervous and scared with sweat. Show a water pond in the background. "+CAM},
+    {name:"Golfer Lay Up Aja",quote:"Safety first, score belakangan",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf fairway pointing toward the safe area. Show a water hazard and green in the background. Make their expression cautious and funny. "+CAM},
+    {name:"METI Golfer",quote:"Menang Tee Off dulu, urusan score nanti",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf tee box doing an exaggerated fist pump celebration. Add other golfers behind still preparing looking surprised. Morning golf course light. "+CAM},
+    {name:"OB Golfer",quote:"Bola: 50rb. Ekspresi: Priceless.",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf course with both hands on their head in exaggerated shock. Add friends behind laughing hard. Show white OB stakes and trees in background. A golf ball flying toward the trees. "+CAM},
+    {name:"3 Putt Specialist",quote:"2 On 3 Putt, konsisten!",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a putting green looking very frustrated and angry after missing a putt. Add a putter in their hand. Add a comic speech bubble above their head with text \"2 On but 3 Putt\". "+CAM},
+    {name:"Bunker Magnet",quote:"Bunker udah kayak rumah kedua",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person inside a deep sand bunker with sand flying everywhere. Make them look exhausted and funny. Add a comic speech bubble above their head with text \"Second bunker today\". "+CAM},
+    {name:"Water Hazard Golfer",quote:"Koleksi bola di danau: 147",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person next to a golf course water pond watching a ball splashing into the water. Make their expression devastated and sad. Add a comic speech bubble above their head with text \"Am I a swimmer?\". "+CAM},
+    {name:"Slicer Golfer",quote:"Fairway kanan juga fairway",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf tee box after hitting a driver. Show a golf ball curving far to the right. Add friends around them laughing and pointing at the ball. "+CAM},
+    {name:"BJB Golfer",quote:"Bingung Jumlah Bogey",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf course holding a scorecard close to their face. Make their expression very confused and puzzled, scratching their head trying to count. "+CAM},
+    {name:"King of Bogey",quote:"Bogey is the new Par",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf course casually smiling while writing on a scorecard. Add friends around them shaking their heads and laughing. Relaxed unbothered expression. "+CAM},
+    {name:"The Breakfast Golfer",quote:"Breakfast ball is my warmup",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf tee box after a terrible slice shot. Make their expression embarrassed but hopeful. Add a comic speech bubble above their head with text \"One more time please!\". "+CAM},
+    {name:"Practice Swing Golfer",quote:"Latihan 10x, pukul tetap OB",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf tee box doing an exaggerated practice swing. Add other golfers behind them looking very bored and checking their watches. "+CAM},
+    {name:"Mulligan Golfer",quote:"Mulligan bukan curang, itu investasi",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf tee box with begging puppy eyes expression, hands together pleading. Add a comic speech bubble above their head with text \"May I hit one more?\". "+CAM},
+    {name:"Sandbagger Golfer",quote:"Handicap 25, main kayak Pro",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf course talking to a friend with a sneaky mischievous grin. Add a comic speech bubble with text \"I am 25 handicap\". "+CAM},
+    {name:"Panglima Booking Caddy",quote:"1 player, 4 caddy. Sultan fairway.",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to premium golf attire. Place the person on a golf course fairway surrounded by multiple beautiful Indonesian female caddies wearing caddy uniforms with bibs. Make their expression satisfied and proud like a boss. "+CAM},
+    {name:"Hole 19 Golfer",quote:"Main golf cuma alesan ke Hole 19",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person on a golf course tee box next to a hole marker sign showing number 18. They are preparing to hit. Add a comic speech bubble above their head with text \"Where is 19th hole?\". "+CAM},
+    {name:"Golfer Carpet Range",quote:"Driving range warrior, course zero",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to golf attire. Place the person at a driving range with many ball buckets stacked around them. They are holding a club with very focused dedicated expression. Green hitting mat visible. "+CAM}
+  ],
+  female:[
+    {name:"The Iron Lady",quote:"Iron only, tetap cantik",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a stylish golf polo shirt, golf skirt and golf visor. Change the background to a golf course tee box. Put an iron club in her hand ready to swing. Add friends behind looking confused why she uses iron on par 5. Add a comic speech bubble above her head with text \"No driver please!\". "+CAM},
+    {name:"The Selfie Golfer",quote:"Skor jelek, foto bagus. Worth it!",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a colorful golf polo shirt and golf skirt. Change the background to a beautiful golf course with golden hour light. Make her pose for a group selfie with friends on a tee box, everyone posing cute and happy. "+CAM},
+    {name:"Happy Cart Golfer",quote:"Golf cart = karaoke bergerak",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Place her sitting in a golf cart driving. Put a microphone-like object in one hand like singing karaoke and a beer in the other hand. Make her expression very joyful and fun. Golf cart path with trees in background. "+CAM},
+    {name:"Instagram Golfer Lady",quote:"Outfit ready, swing... next time",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a fashionable matching golf outfit with golf skirt and visor. Change the background to a stunning golf course with blue sky. Make her strike a perfect instagram model pose holding a golf club like an accessory. Golden hour light. "+CAM},
+    {name:"Fairway Queen",quote:"Fairway sekali, cerita seminggu",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt, golf skirt and cap. Change the background to a wide beautiful golf fairway. Make her point very proudly at a golf ball on the ground. Exaggerated proud queen expression. "+CAM},
+    {name:"Short Game Queen",quote:"Short game dewa, long game... no comment",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf green area. Put a wedge club in her hand preparing to chip. Make her expression hopeful and praying. Add a comic speech bubble above her head with text \"One chip one putt?\". "+CAM},
+    {name:"Queen of Bogey",quote:"Bogey with a smile, that is my style",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt, golf skirt and visor. Change the background to a golf course. Put a scorecard and pencil in her hand. Make her smile happily and carefree while writing on the scorecard. Unbothered expression. "+CAM},
+    {name:"The Carpet Lady",quote:"Range queen, course princess",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a driving range. Add many ball buckets stacked around her. Put a golf club in her hand. Make her expression very focused and dedicated. Green hitting mat visible. "+CAM},
+    {name:"The Risk Taker Lady",quote:"Yakin nih? YOLO!",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf course with a water hazard pond. Put a golf club in her hand mid-swing. Make her expression very nervous, scared and sweating. Water pond visible behind. "+CAM},
+    {name:"Golfer Lay Up Aja Lady",quote:"Safety first, score belakangan",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf fairway with water hazard. Make her point toward the safe fairway area while ignoring the green across water. Funny cautious expression. "+CAM},
+    {name:"METI Lady",quote:"Menang Tee Off dulu, urusan score nanti",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt, golf skirt and visor. Change the background to a golf tee box with morning light. Make her celebrate with an exaggerated fist pump. Add other golfers behind still preparing looking surprised. "+CAM},
+    {name:"OB Golfer Lady",quote:"Bola: 50rb. Ekspresi: Priceless.",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf course with trees. Make her put both hands on her head in exaggerated shock. Add friends around laughing hard. Show a golf ball flying toward trees and white OB stakes. "+CAM},
+    {name:"3 Putt Specialist Lady",quote:"2 On 3 Putt, konsisten!",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a putting green. Put a putter in her hand. Make her expression very frustrated and funny after missing a putt. Add a comic speech bubble above her head with text \"2 On but 3 Putt\". "+CAM},
+    {name:"Bunker Magnet Lady",quote:"Bunker udah kayak rumah kedua",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Place her inside a deep sand bunker with sand flying everywhere around her. Make her look exhausted and funny. Add a comic speech bubble above her head with text \"Second bunker today\". "+CAM},
+    {name:"Water Hazard Lady",quote:"Koleksi bola di danau: 147",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf course water pond. Make her watch a ball splashing into the water with exaggerated sad funny expression. Add a comic speech bubble above her head with text \"Am I a swimmer?\". "+CAM},
+    {name:"Slicer Lady",quote:"Fairway kanan juga fairway",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf tee box. Show a golf ball curving far to the right in the air. Add friends around laughing hard and pointing at the ball. "+CAM},
+    {name:"BJB Golfer Lady",quote:"Bingung Jumlah Bogey",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt, golf skirt and visor. Change the background to a golf course. Put a scorecard close to her face. Make her expression very confused and puzzled, scratching her head trying to count scores. "+CAM},
+    {name:"Practice Swing Lady",quote:"Latihan 10x, pukul tetap OB",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf tee box. Make her do an exaggerated practice swing with a golf club. Add friends behind looking very bored and checking their watches. "+CAM},
+    {name:"Mulligan Lady",quote:"Mulligan bukan curang, itu investasi",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf tee box. Make her expression cute begging puppy eyes with hands together pleading. Add a comic speech bubble above her head with text \"May I hit one more?\". "+CAM},
+    {name:"Sandbagger Lady",quote:"Handicap 25, main kayak Pro",prompt:"Keep the face untouched, do not modify any facial features. Change the outfit to a golf polo shirt and golf skirt. Change the background to a golf course. Make her talk to a friend with a sneaky mischievous grin expression. Add a comic speech bubble with text \"I am 25 handicap\". "+CAM}
+
+  ]
+};
+
+var currentImageBase64=null,currentRequestId=null,selectedGender='male',lastSelected=null;
+var MAX_GENERATES=10;
+
+function selectGender(el,gender){document.querySelectorAll('.gender-opt').forEach(function(b){b.classList.remove('active')});el.classList.add('active');selectedGender=gender}
+function openCamera(){document.getElementById('cameraInput').click()}
+function handleFile(input){
+  var file=input.files&&input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){var img=new Image();img.onload=function(){
+    var canvas=document.createElement('canvas');var MAX=1024;var w=img.width,h=img.height;
+    if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX}else{w=Math.round(w*MAX/h);h=MAX}}
+    canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);
+    currentImageBase64=canvas.toDataURL('image/jpeg',0.85);
+    var preview=document.getElementById('preview');preview.src=currentImageBase64;preview.classList.remove('hidden');
+    document.getElementById('photoPlaceholder').classList.add('hidden');
+    document.getElementById('photoArea').classList.add('has-photo');
+    document.getElementById('changePhoto').classList.add('active');
+  };img.src=e.target.result};reader.readAsDataURL(file);
+}
+function showError(msg){var el=document.getElementById('errorMsg');el.textContent=msg;el.classList.add('active');setTimeout(function(){el.classList.remove('active')},5000)}
+function getCount(){return parseInt(localStorage.getItem('golferScanCount')||'0')}
+function incrementCount(){var c=getCount()+1;localStorage.setItem('golferScanCount',c.toString());updateCounter();return c}
+function updateCounter(){
+  var c=getCount();var ct=document.getElementById('counter');var d='';
+  for(var i=0;i<MAX_GENERATES;i++){var cls='counter-dot';if(i<c){cls+=' used';if(c>=8&&i>=7)cls+=' danger';else if(c>=6&&i>=5)cls+=' warn'}d+='<div class="'+cls+'"></div>'}
+  ct.innerHTML='<div class="counter-bar"><div class="counter-dots">'+d+'</div><div class="counter-text">'+c+'/'+MAX_GENERATES+'</div></div>';
+  if(c>=MAX_GENERATES){document.getElementById('generateBtn').disabled=true;document.getElementById('subscribeHint').classList.add('active')}
+}
+var progressMsgs=["Analyzing your swing DNA...","Checking handicap vibes...","Scanning fairway personality...","Consulting the golf gods...","Reading your putt style...","Matching golfer aura...","Almost on the green..."];
+function animateProgress(){var idx=0;var el=document.getElementById('progressText');return setInterval(function(){idx=(idx+1)%progressMsgs.length;el.textContent=progressMsgs[idx]},3500)}
+
+async function generate(){
+  if(!currentImageBase64){showError('Upload selfie dulu!');return}
+  if(getCount()>=MAX_GENERATES){showError('Limit tercapai! Subscribe untuk unlimited.');return}
+  var types=GOLFER_TYPES[selectedGender];
+  lastSelected=types[Math.floor(Math.random()*types.length)];
+  document.getElementById('generateBtn').disabled=true;
+  document.getElementById('resultSection').classList.remove('active');
+  document.getElementById('progress').classList.add('active');
+  var msgTimer=animateProgress();
+  try{
+    document.getElementById('progressSub').textContent='Uploading photo...';
+    var upRes=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:currentImageBase64})});
+    if(!upRes.ok){var m='Upload failed';try{m=(await upRes.json()).error||m}catch(x){}throw new Error(m)}
+    var upData=await upRes.json();if(!upData.url)throw new Error('Upload failed');
+    document.getElementById('progressSub').textContent='AI sedang membuat portrait...';
+    var subRes=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:lastSelected.prompt,image_url:upData.url,image_size:'portrait_4_3'})});
+    if(!subRes.ok){var m2='Submit failed';try{m2=(await subRes.json()).error||m2}catch(x2){}throw new Error(m2)}
+    var subData=await subRes.json();currentRequestId=subData.request_id;
+    document.getElementById('progressSub').textContent='In queue...';
+    var imageUrl=await pollForResult(subData.status_url,subData.response_url);
+    clearInterval(msgTimer);incrementCount();
+    document.getElementById('resultName').textContent=lastSelected.name;
+    document.getElementById('resultQuote').textContent='"'+lastSelected.quote+'"';
+    document.getElementById('resultImage').src=imageUrl;
+    document.getElementById('progress').classList.remove('active');
+    document.getElementById('resultSection').classList.add('active');
+    document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){clearInterval(msgTimer);showError(err.message||'Terjadi kesalahan');document.getElementById('progress').classList.remove('active')}
+  finally{document.getElementById('generateBtn').disabled=getCount()>=MAX_GENERATES}
+}
+async function pollForResult(statusUrl,responseUrl){
+  var MAX=60,a=0;while(a<MAX){a++;await sleep(2500);try{
+    var r=await fetch('/api/status?fal_url='+encodeURIComponent(statusUrl));if(!r.ok)continue;var d=await r.json();
+    if(d.status==='IN_QUEUE'){document.getElementById('progressSub').textContent='In queue (pos: '+(d.queue_position||'...')+')';continue}
+    if(d.status==='IN_PROGRESS'){document.getElementById('progressSub').textContent='AI sedang membuat...';continue}
+    if(d.status==='COMPLETED'){var rr=await fetch('/api/result?fal_url='+encodeURIComponent(responseUrl));var rd=await rr.json();
+      if(rd.fal_error)throw new Error('AI Error: '+(rd.detail||'Failed'));
+      if(rd.images&&rd.images[0]&&rd.images[0].url)return rd.images[0].url;throw new Error('No image');}
+    if(d.status==='FAILED')throw new Error('AI failed');
+  }catch(e){if(a>=MAX)throw e}}throw new Error('Timeout');
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+
+/* === DOWNLOAD WITH FUTURISTIC FRAME === */
+function downloadWithFrame(){
+  var img=document.getElementById('resultImage');
+  if(!img.src||!lastSelected)return;
+  var tempImg=new Image();
+  tempImg.crossOrigin='anonymous';
+  tempImg.onload=function(){
+    var W=1080,imgH=Math.round(W*(tempImg.height/tempImg.width));
+    var headerH=60,bottomH=180,totalH=headerH+imgH+bottomH;
+    var canvas=document.getElementById('downloadCanvas');
+    canvas.width=W;canvas.height=totalH;
+    var ctx=canvas.getContext('2d');
+    // Background
+    var bgGrad=ctx.createLinearGradient(0,0,W,totalH);
+    bgGrad.addColorStop(0,'#080d18');bgGrad.addColorStop(1,'#0c1628');
+    ctx.fillStyle=bgGrad;ctx.fillRect(0,0,W,totalH);
+    // Header
+    var hGrad=ctx.createLinearGradient(0,0,W,0);
+    hGrad.addColorStop(0,'#0a1020');hGrad.addColorStop(1,'#0f1a30');
+    ctx.fillStyle=hGrad;ctx.fillRect(0,0,W,headerH);
+    // Header neon line
+    var nlGrad=ctx.createLinearGradient(0,0,W,0);
+    nlGrad.addColorStop(0,'transparent');nlGrad.addColorStop(0.3,'#39FF14');nlGrad.addColorStop(0.7,'#39FF14');nlGrad.addColorStop(1,'transparent');
+    ctx.fillStyle=nlGrad;ctx.fillRect(0,headerH-3,W,3);
+    // Header text
+    ctx.font='bold 22px Barlow Condensed, sans-serif';ctx.fillStyle='#39FF14';ctx.textBaseline='middle';
+    ctx.fillText('⛳ GOLFER SCANNER AI',30,headerH/2);
+    ctx.font='600 18px Barlow Condensed, sans-serif';ctx.fillStyle='rgba(255,255,255,0.35)';ctx.textAlign='right';
+    ctx.fillText('YOUR TYPE',W-30,headerH/2);ctx.textAlign='left';
+    // Image
+    ctx.drawImage(tempImg,0,headerH,W,imgH);
+    // Bottom bg
+    var btGrad=ctx.createLinearGradient(0,headerH+imgH,0,totalH);
+    btGrad.addColorStop(0,'#080d18');btGrad.addColorStop(1,'#0c1628');
+    ctx.fillStyle=btGrad;ctx.fillRect(0,headerH+imgH,W,bottomH);
+    // Bottom neon line
+    ctx.fillStyle=nlGrad;ctx.fillRect(0,headerH+imgH,W,3);
+    // Accent bar
+    ctx.fillStyle='#39FF14';ctx.shadowColor='rgba(57,255,20,0.5)';ctx.shadowBlur=10;
+    ctx.fillRect(30,headerH+imgH+28,6,40);ctx.shadowBlur=0;
+    // Geometric accent
+    ctx.fillStyle='rgba(57,255,20,0.03)';
+    ctx.beginPath();ctx.moveTo(W-200,headerH+imgH);ctx.lineTo(W,headerH+imgH);ctx.lineTo(W,totalH);ctx.lineTo(W-350,totalH);ctx.closePath();ctx.fill();
+    // Type name
+    ctx.font='900 48px Barlow Condensed, sans-serif';ctx.fillStyle='#FFFFFF';ctx.textBaseline='top';
+    ctx.fillText(lastSelected.name.toUpperCase(),50,headerH+imgH+25);
+    // Quote
+    ctx.font='italic 24px DM Sans, sans-serif';ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.fillText('"'+lastSelected.quote+'"',50,headerH+imgH+82);
+    // Bottom line
+    ctx.fillStyle='rgba(57,255,20,0.15)';ctx.fillRect(50,headerH+imgH+120,W-100,1);
+    // Credit
+    ctx.font='bold 20px DM Sans, sans-serif';ctx.fillStyle='rgba(57,255,20,0.6)';
+    ctx.fillText('@the.holy.swing',50,headerH+imgH+138);
+    // Right emoji
+    ctx.font='28px sans-serif';ctx.textAlign='right';
+    ctx.fillText('🏌️⛳',W-30,headerH+imgH+135);ctx.textAlign='left';
+    // Download
+    var link=document.createElement('a');link.download='golfer-type-'+lastSelected.name.toLowerCase().replace(/[^a-z0-9]/g,'-')+'.png';
+    link.href=canvas.toDataURL('image/png');link.click();
+  };
+  tempImg.onerror=function(){
+    var a=document.createElement('a');a.href=img.src;a.download='golfer-type.png';a.target='_blank';a.click();
+  };
+  tempImg.src=img.src;
+}
+
+function shareWA(){var n=lastSelected?lastSelected.name:'Golfer';var q=lastSelected?lastSelected.quote:'';window.open('https://wa.me/?text='+encodeURIComponent('Tipe golfer gue: '+n+'! 🏌️⛳\n"'+q+'"\n\nCek tipe golfer lo di: '+window.location.href))}
+function resetUI(){document.getElementById('resultSection').classList.remove('active');document.getElementById('progress').classList.remove('active');window.scrollTo({top:0,behavior:'smooth'})}
+updateCounter();
+</script>
+</body>
+</html>
