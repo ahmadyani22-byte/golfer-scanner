@@ -339,7 +339,7 @@ var GOLFER_TYPES={
 };
 
 var currentImageBase64=null,currentRequestId=null,selectedGender='male',lastSelected=null;
-var MAX_GENERATES=10;
+var MAX_GENERATES=20;
 
 function selectGender(el,gender){document.querySelectorAll('.gender-opt').forEach(function(b){b.classList.remove('active')});el.classList.add('active');selectedGender=gender}
 function openCamera(){document.getElementById('cameraInput').click()}
