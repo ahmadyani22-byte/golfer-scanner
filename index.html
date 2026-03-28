@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Golfer Scanner — Tipe Golfer Apa Kamu?</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛳</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#16A34A;--green-light:#22C55E;--green-dark:#15803D;--green-deep:#166534;
+  --lime:#84CC16;--lime-light:#A3E635;
+  --fairway:#2D8B4E;--fairway-light:#3DA562;
+  --navy:#0F172A;--navy-light:#1E293B;
+  --white:#FFFFFF;--gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;--gray-300:#CBD5E1;--gray-400:#94A3B8;--gray-500:#64748B;
+  --yellow:#FACC15;--orange:#FB923C;--red:#EF4444;
+  --sand:#D4A84B;--sand-light:#E8C97A;
+  --sky-top:#1B4B7A;--sky-mid:#2B6DA8;--sky-bottom:#7EC8E3;
+  --radius:16px;--radius-sm:10px;--radius-xs:8px;
+  --shadow:0 4px 24px rgba(0,0,0,0.1);--shadow-lg:0 8px 40px rgba(0,0,0,0.15);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#1a3a2a;color:var(--navy);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* === GOLF COURSE BG === */
+.golf-bg{position:fixed;inset:0;z-index:0;overflow:hidden}
+.golf-bg .sky{position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 40%,var(--sky-bottom) 80%,#B5E4D0 100%)}
+.golf-bg .clouds{position:absolute;top:5%;width:100%;height:30%}
+.cloud{position:absolute;background:rgba(255,255,255,0.25);border-radius:50%;filter:blur(20px)}
+.golf-bg .fairway-bg{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(180deg,#3DA562 0%,#2D8B4E 30%,#256F3E 60%,#1E5A33 100%)}
+.golf-bg .fairway-bg::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,0.02) 0px,rgba(255,255,255,0.02) 30px,transparent 30px,transparent 60px)}
+.golf-bg .fairway-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,255,255,0.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 60%,rgba(0,0,0,0.08) 0%,transparent 40%)}
+.golf-bg .bunker-deco{position:absolute;border-radius:50%;background:radial-gradient(ellipse,var(--sand-light),var(--sand));opacity:0.35}
+.golf-bg .green-patch{position:absolute;border-radius:50%;background:radial-gradient(ellipse,#3CAF5C,var(--fairway));opacity:0.3}
+.flag-deco{position:absolute;z-index:1}
+.flag-pole{width:2px;height:36px;background:linear-gradient(180deg,#ddd,#999)}
+.flag-cloth{width:14px;height:9px;background:var(--red);position:absolute;top:0;left:2px;clip-path:polygon(0 0,100% 30%,0 100%);animation:flagWave 2s ease-in-out infinite alternate}
+@keyframes flagWave{0%{clip-path:polygon(0 0,100% 30%,0 100%)}100%{clip-path:polygon(0 0,100% 20%,0 90%)}}
+.flag-hole{width:8px;height:3px;background:rgba(0,0,0,0.25);border-radius:50%;margin:-1px auto 0}
+@keyframes driftCloud{0%{transform:translateX(-200px)}100%{transform:translateX(calc(100vw + 200px))}}
+.golf-ball-float{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.golf-ball-float div{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#e8e8e8,#ccc);box-shadow:0 2px 6px rgba(0,0,0,0.15);opacity:0.25;animation:floatBall linear infinite}
+@keyframes floatBall{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:0.25}90%{opacity:0.25}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+
+/* === HERO === */
+.hero{position:relative;z-index:1;overflow:hidden;padding:44px 20px 56px;text-align:center}
+.hero::after{content:"";position:absolute;bottom:-2px;left:0;right:0;height:24px;background:linear-gradient(180deg,transparent,rgba(30,90,51,0.6));z-index:2}
+.hero-content{position:relative;z-index:3;max-width:440px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:var(--white);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:50px;margin-bottom:16px;animation:fadeDown 0.6s ease both;backdrop-filter:blur(8px)}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.hero-emoji{font-size:52px;margin-bottom:8px;animation:bounceIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both 0.1s;display:block;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3))}
+@keyframes bounceIn{from{opacity:0;transform:scale(0) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.hero h1{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;line-height:1;color:var(--white);margin-bottom:6px;animation:fadeDown 0.6s ease both 0.2s;text-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.hero h1 span{background:linear-gradient(135deg,var(--yellow),var(--lime-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:14px;color:rgba(255,255,255,0.7);font-weight:400;animation:fadeDown 0.6s ease both 0.35s;text-shadow:0 1px 4px rgba(0,0,0,0.2)}
+
+/* === APP === */
+.app{max-width:440px;margin:0 auto;padding:0 16px 40px;position:relative;z-index:3}
+
+.card{background:rgba(255,255,255,0.93);border-radius:var(--radius);padding:20px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.3);animation:slideUp 0.5s ease both;backdrop-filter:blur(16px)}
+.card:nth-child(2){animation-delay:0.08s}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.card-icon{width:32px;height:32px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-icon.scan{background:linear-gradient(135deg,var(--green),var(--green-dark))}
+.card-icon.type{background:linear-gradient(135deg,var(--lime),var(--green-light))}
+.card-icon.how{background:linear-gradient(135deg,var(--sky-mid),var(--sky-top))}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy)}
+
+/* Photo */
+.photo-area{position:relative;border:2px dashed var(--gray-300);border-radius:14px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;cursor:pointer;transition:all 0.3s;background:var(--gray-50)}
+.photo-area:hover{border-color:var(--green);background:rgba(22,163,74,0.04)}
+.photo-area.has-photo{border-style:solid;border-color:var(--green);background:var(--navy)}
+.photo-area img{width:100%;height:260px;object-fit:cover;border-radius:12px}
+.upload-icon-wrap{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--lime));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(22,163,74,0.3)}
+.upload-text{font-size:13px;color:var(--gray-500)}
+.upload-text strong{color:var(--green);font-weight:600}
+.photo-btns{display:flex;gap:8px;margin-top:4px}
+.photo-btn{padding:8px 18px;border-radius:50px;border:1px solid var(--gray-300);background:var(--white);color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.photo-btn:hover{background:var(--green);color:var(--white);border-color:var(--green)}
+.photo-btn:active{transform:scale(0.96)}
+.change-photo{display:none;margin-top:8px;text-align:center}
+.change-photo.active{display:block}
+.change-photo button{padding:6px 16px;border-radius:50px;border:1px solid var(--gray-300);background:var(--white);color:var(--gray-500);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.change-photo button:hover{border-color:var(--green);color:var(--green)}
+
+/* Gender */
+.gender-toggle{display:flex;gap:6px;background:var(--gray-100);border-radius:12px;padding:4px}
+.gender-opt{flex:1;padding:12px;border:none;border-radius:var(--radius-xs);background:transparent;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray-400);cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:6px}
+.gender-opt.active{background:var(--white);color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.gender-opt:hover:not(.active){color:var(--gray-500)}
+
+/* Generate */
+.generate-btn{width:100%;padding:16px;border:none;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:1px;border-radius:14px;cursor:pointer;box-shadow:0 6px 24px rgba(22,163,74,0.4);transition:all 0.2s;position:relative;overflow:hidden}
+.generate-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.15) 50%,transparent 60%);transform:translateX(-100%);transition:transform 0.6s}
+.generate-btn:hover::before{transform:translateX(100%)}
+.generate-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(22,163,74,0.5)}
+.generate-btn:active{transform:translateY(0)}
+.generate-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shadow:none}
+
+/* Progress */
+.progress{display:none;text-align:center;padding:40px 20px}
+.progress.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.spinner-wrap{width:64px;height:64px;margin:0 auto 16px}
+.spinner-ball{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#fff 0%,#f0f0f0 30%,#ddd 60%,#ccc 100%);box-shadow:inset -3px -3px 8px rgba(0,0,0,0.12),0 4px 16px rgba(0,0,0,0.2);animation:ballRoll 1.2s linear infinite}
+.spinner-ball::before{content:"";position:absolute;inset:10px;border-radius:50%;background:repeating-conic-gradient(rgba(0,0,0,0.03) 0deg 10deg,transparent 10deg 20deg)}
+@keyframes ballRoll{to{transform:rotate(360deg)}}
+.progress-text{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:0.5px;text-shadow:0 1px 4px rgba(0,0,0,0.2)}
+.progress-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px}
+
+/* Result */
+.result{display:none}
+.result.active{display:block;animation:resultIn 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes resultIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+.result-card{background:rgba(255,255,255,0.95);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid rgba(255,255,255,0.3);backdrop-filter:blur(12px)}
+.result-type-banner{background:var(--navy);padding:16px 20px;text-align:center;position:relative;overflow:hidden}
+.result-type-banner::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(22,163,74,0.15),transparent 60%)}
+.result-type-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green-light);margin-bottom:4px;position:relative}
+.result-type-name{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--white);text-transform:uppercase;letter-spacing:0.5px;position:relative}
+.result-image{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.result-actions{display:flex;gap:8px;padding:16px}
+.result-actions button{flex:1;padding:12px 8px;border:none;border-radius:var(--radius-xs);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.3px}
+.result-actions button:hover{transform:translateY(-1px)}
+.btn-download{background:var(--green);color:var(--white)}
+.btn-share{background:rgba(37,211,102,0.1);color:#25D366;border:1px solid rgba(37,211,102,0.2)!important}
+.btn-retry{background:var(--gray-100);color:var(--gray-500);border:1px solid var(--gray-200)!important}
+
+/* Counter */
+.counter{text-align:center;margin-top:16px;animation:slideUp 0.5s ease both 0.3s}
+.counter-bar{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);border-radius:50px;padding:8px 16px;backdrop-filter:blur(8px)}
+.counter-dots{display:flex;gap:3px}
+.counter-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);transition:background 0.3s}
+.counter-dot.used{background:var(--green-light)}
+.counter-dot.used.warn{background:var(--orange)}
+.counter-dot.used.danger{background:var(--red)}
+.counter-text{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.3px}
+.subscribe-hint{display:none;text-align:center;margin-top:8px;font-size:12px;color:rgba(255,255,255,0.5)}
+.subscribe-hint a{color:var(--lime-light);font-weight:600;text-decoration:none}
+.subscribe-hint.active{display:block}
+
+/* Error */
+.error-msg{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#fca5a5;border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;font-weight:500;margin-bottom:12px;text-align:center;backdrop-filter:blur(8px)}
+.error-msg.active{display:block;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* === CARA PAKAI === */
+.how-to{animation:slideUp 0.5s ease both 0.3s}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-content{flex:1}
+.step-title{font-weight:700;font-size:13px;color:var(--navy);margin-bottom:2px}
+.step-desc{font-size:12px;color:var(--gray-500);line-height:1.5}
+.tips-box{margin-top:14px;background:linear-gradient(135deg,rgba(22,163,74,0.06),rgba(132,204,22,0.06));border:1px solid rgba(22,163,74,0.15);border-radius:12px;padding:12px 14px}
+.tips-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--green);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.tips-list{font-size:11px;color:var(--gray-500);line-height:1.7}
+
+/* Footer */
+.footer{text-align:center;margin-top:28px;padding-bottom:24px}
+.footer-credit{font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:6px;font-weight:500}
+.footer-credit a{color:var(--lime-light);font-weight:700;text-decoration:none;transition:color 0.2s}
+.footer-credit a:hover{color:var(--yellow)}
+.footer-powered{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.5px;text-transform:uppercase;font-weight:600}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="golf-bg">
+  <div class="sky">
+    <div class="clouds">
+      <div class="cloud" style="width:180px;height:50px;top:10%;left:5%;animation:driftCloud 40s linear infinite"></div>
+      <div class="cloud" style="width:120px;height:35px;top:25%;left:55%;animation:driftCloud 55s linear infinite 10s"></div>
+      <div class="cloud" style="width:200px;height:45px;top:5%;left:30%;animation:driftCloud 50s linear infinite 5s"></div>
+      <div class="cloud" style="width:100px;height:30px;top:18%;left:75%;animation:driftCloud 45s linear infinite 20s"></div>
+    </div>
+  </div>
+  <div class="fairway-bg">
+    <div class="bunker-deco" style="width:80px;height:30px;bottom:25%;right:8%"></div>
+    <div class="bunker-deco" style="width:50px;height:20px;bottom:45%;left:5%"></div>
+    <div class="green-patch" style="width:100px;height:70px;bottom:35%;left:25%"></div>
+    <div class="green-patch" style="width:60px;height:45px;bottom:55%;right:20%"></div>
+  </div>
+  <div class="flag-deco" style="bottom:48%;left:32%"><div class="flag-cloth"></div><div class="flag-pole"></div><div class="flag-hole"></div></div>
+  <div class="flag-deco" style="bottom:62%;right:25%"><div class="flag-cloth"></div><div class="flag-pole"></div><div class="flag-hole"></div></div>
+</div>
+<div class="golf-ball-float" id="golfBalls"></div>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">⛳ Golf Scanner AI</div>
+    <span class="hero-emoji">🏌️</span>
+    <h1>Golfer Tipe Apa <span>Kamu?</span></h1>
+    <p>Upload selfie, discover your golfer persona!</p>
+  </div>
+</div>
+
+<div class="app">
+  <!-- PHOTO -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon scan">📸</div>
+      <div class="card-title">Scan Wajahmu</div>
+    </div>
+    <div class="photo-area" id="photoArea" onclick="document.getElementById('fileInput').click()">
+      <div id="photoPlaceholder">
+        <div style="text-align:center">
+          <div class="upload-icon-wrap">📷</div>
+          <div class="upload-text" style="margin-top:10px">Tap untuk <strong>upload selfie</strong></div>
+          <div class="photo-btns">
+            <button class="photo-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Gallery</button>
+            <button class="photo-btn" onclick="event.stopPropagation();openCamera()">Camera</button>
+          </div>
+        </div>
+      </div>
+      <img id="preview" class="hidden" alt="Preview">
+    </div>
+    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFile(this)">
+    <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden" onchange="handleFile(this)">
+    <div class="change-photo" id="changePhoto">
+      <button onclick="document.getElementById('fileInput').click()">📷 Ganti Foto</button>
+    </div>
+  </div>
+
+  <!-- GENDER -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon type">🎯</div>
+      <div class="card-title">Pilih Gender</div>
+    </div>
+    <div class="gender-toggle">
+      <button class="gender-opt active" onclick="selectGender(this,'male')">🏌️‍♂️ Men</button>
+      <button class="gender-opt" onclick="selectGender(this,'female')">🏌️‍♀️ Ladies</button>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+  <button class="generate-btn" id="generateBtn" onclick="generate()">⛳ Scan Tipe Golfer</button>
+
+  <!-- PROGRESS -->
+  <div class="progress" id="progress">
+    <div class="spinner-wrap"><div class="spinner-ball"></div></div>
+    <div class="progress-text" id="progressText">Analyzing your swing DNA...</div>
+    <div class="progress-sub" id="progressSub">Estimated 20-40 seconds</div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result" id="resultSection">
+    <div class="result-card">
+      <div class="result-type-banner">
+        <div class="result-type-label">Your Golfer Type Is</div>
+        <div class="result-type-name" id="resultName"></div>
+      </div>
+      <img class="result-image" id="resultImage" alt="Golfer Portrait">
+      <div class="result-actions">
+        <button class="btn-download" onclick="downloadImage()">💾 Save</button>
+        <button class="btn-share" onclick="shareWA()">📤 Share</button>
+        <button class="btn-retry" onclick="resetUI()">🔄 Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COUNTER -->
+  <div class="counter" id="counter"></div>
+  <div class="subscribe-hint" id="subscribeHint">Limit tercapai! <a href="#">Subscribe</a> untuk unlimited scans ⛳</div>
+
+  <!-- CARA PAKAI -->
+  <div class="card how-to" style="margin-top:20px">
+    <div class="card-header">
+      <div class="card-icon how">📖</div>
+      <div class="card-title">Cara Pakai</div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Upload Selfie / Foto Wajah</div>
+          <div class="step-desc">Pilih foto dari gallery atau ambil langsung dari camera. Pastikan wajah terlihat jelas dan terang.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Pilih Gender</div>
+          <div class="step-desc">Pilih Men atau Ladies untuk mendapatkan tipe golfer yang sesuai.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Tap "Scan Tipe Golfer"</div>
+          <div class="step-desc">AI akan menganalisis dan generate foto realistis kamu sebagai tipe golfer tertentu. Proses sekitar 20-40 detik.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Save & Share!</div>
+          <div class="step-desc">Download hasilnya atau langsung share ke WhatsApp. Kamu punya 10x free generate!</div>
+        </div>
+      </div>
+    </div>
+    <div class="tips-box">
+      <div class="tips-title">💡 Tips Foto Terbaik</div>
+      <div class="tips-list">
+        ✅ Gunakan foto close-up wajah yang jelas<br>
+        ✅ Pencahayaan terang & merata<br>
+        ✅ Wajah menghadap depan (tidak miring)<br>
+        ❌ Hindari foto gelap, blur, atau pakai kacamata hitam
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-credit">created by <a href="https://instagram.com/the.holy.swing" target="_blank">@the.holy.swing</a></div>
+    <div class="footer-powered">Powered by Golf Scanner AI</div>
+  </div>
+</div>
+
+<script>
+(function(){var c=document.getElementById('golfBalls');for(var i=0;i<8;i++){var b=document.createElement('div');var s=Math.random()*8+8;b.style.cssText='width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;animation-duration:'+(Math.random()*12+10)+'s;animation-delay:'+(Math.random()*10)+'s';c.appendChild(b)}})();
+
+/* ===== GOLFER TYPES — IMPROVED PROMPTS FOR FACE REALISM ===== */
+var GOLFER_TYPES={
+  male:[
+    {name:"Back Nine Hero",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, proud awkward smile showing scorecard with perfect back 9 scores near his face, wearing golf polo shirt and cap, lush green golf course background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Front Nine Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, shocked disappointed expression mouth open looking at scorecard, wearing golf polo and visor, beautiful golf fairway background, golden hour light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"The Iron Man",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, confident smirk expression holding an iron club on shoulder at par 5 tee box, friends blurred in background looking confused, golf course with trees, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"The Risk Taker",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, nervous tense expression biting lip looking toward water hazard, holding golf club, water pond visible in blurred background, dramatic afternoon light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Golfer \"Lay Up Aja\"",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, cautious wise expression pointing finger toward safe fairway area, water hazard visible in background, wearing golf polo, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"METI Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, triumphant celebrating expression fist pump after great tee shot, other golfers blurred behind still preparing, morning light on tee box, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"OB Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, horrified shocked expression looking into distance with mouth open, ball flying toward trees out of bounds, white OB stakes blurred in background, dramatic light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"3 Putt Specialist",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, extremely frustrated anguished expression squinting eyes on putting green, putter resting on shoulder, golf hole and flag visible nearby, manicured green, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Chip Ngetok Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, embarrassed awkward cringing expression after bad chip shot, ball barely moved, wedge club near face, golf green fringe area, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Bunker Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, determined gritty expression covered in sand spray in deep bunker, sand particles flying around face, dramatic directional sunlight, golf bunker trap, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Water Hazard Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, dejected sad expression with slumped shoulders watching ball direction toward water pond, ripples on water in blurred background, afternoon golden light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Slicer Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, pained wincing expression watching ball curve far right after tee shot, leaning body slightly right, golf tee box wide fairway background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Hook Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, grimacing worried expression watching ball curve sharply left, leaning body left, golf tee box background, afternoon light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Topping Master",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, embarrassed cringing ashamed expression after topping the ball, ball rolling pathetically short on ground, golf tee box or fairway, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Hero Shot Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, intense focused determined expression peering through tree branches planning impossible shot, dense trees and rough area, dramatic dappled forest light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"BJB Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, confused puzzled expression furrowed brow looking at scorecard near face trying to count strokes, scratching head, beautiful golf course background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"King of Bogey",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, casually happy content unbothered smile writing on scorecard with pencil, relaxed expression, golf course green and flag in blurred background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Bunker Magnet",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, exasperated rolling eyes frustrated expression, sand bunkers visible in background, golf course afternoon light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"The Breakfast Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, happy relaxed morning expression holding coffee cup near face at tee box, beautiful dewy morning golden hour golf course, warm light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Practice Swing Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, overly serious concentrated expression mid practice swing on tee box, other golfers waiting blurred behind, golf course daylight, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Range Finder Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, intensely serious expression looking through rangefinder device near eye, one eye squinting measuring distance, golf fairway background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"\"Gimana Kata Caddy\"",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, thoughtful serious listening expression nodding, caddy blurred beside pointing direction, golf fairway background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Mulligan Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, sheepish guilty smile expression teeing up second ball, friends shaking heads amused in blurred background, golf tee box morning light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Golfer Sewa Bola",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, proud happy scavenger expression with collection of used golf balls, golf course rough area background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Sandbagger Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, mischievous sly sneaky grin expression pretending innocence, golf tee box background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"ONBO Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, bewildered confused expression trying to count on fingers, standing on putting green, beautiful golf green background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Golfer Undangan",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, excited happy grateful expression at golf tournament, tournament badge visible on polo, golf clubhouse entrance blurred background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Golfer Weekend",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, chill relaxed happy expression wearing casual weekend golf outfit untucked polo, beautiful morning golf course, golden hour sunlight, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Golfer Weekday",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, rushing busy expression still wearing office dress shirt with loosened tie on golf course, afternoon light, funny candid, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Pemaingolfasik",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, genuinely happy joyful laughing expression, group of friends blurred behind on beautiful golf fairway, warm golden hour light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Panglima Booking Caddy",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, boss-like satisfied proud expression, multiple caddies blurred around him on golf course, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Hole 19 Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, happy relaxed laughing expression in golf clubhouse bar, warm amber drink nearby, warm ambient clubhouse interior lighting, post-game celebration, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Golfer Carpet Range",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real man golfer, same face and exact facial features as reference photo, anatomically correct, focused dedicated serious expression at driving range, ball buckets and green hitting mat blurred in background, afternoon light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"}
+  ],
+  female:[
+    {name:"The Iron Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, strong confident empowered expression holding iron club on shoulder, beautiful golf course tee box background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"The Selfie Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, cute happy selfie smile expression looking at camera, gorgeous golf course landscape in background, golden hour warm sunlight, lifestyle photography, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Sunset Golfer Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, serene beautiful glowing expression, dramatic orange pink sunset sky over golf course in background, golden hour backlighting, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Happy Cart Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, joyful happy expression sitting in golf cart, tree-lined cart path blurred background, natural dappled sunlight, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Fashion First Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, confident fashion-forward expression in stylish matching golf outfit, beautiful manicured golf course background, bright daylight, fashion sports photography, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Pretty Swing Queen",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, graceful focused athletic expression mid-swing, golf tee box with blurred fairway background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Happy Swing Queen",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, pure joyful radiantly happy expression during swing, golf course tee area, bright natural sunlight, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Chill Golfer Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, relaxed cool confident expression leaning casually, beautiful green fairway with trees background, afternoon light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Instagram Golfer Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, photogenic polished instagram-worthy smile and pose, stunning golf course with blue sky background, golden hour warm light, social media lifestyle photography, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Social Golfer Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, genuine happy laughing expression, girlfriends blurred on beautiful fairway background, warm sunlight, candid group photography, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Santai Golfer Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, relaxed peaceful content expression walking on fairway, tree-lined fairway background, soft afternoon golden light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Fairway Queen",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, proud satisfied expression pointing forward on fairway, wide fairway with ball visible in background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Short Game Queen",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, focused precise satisfied expression near putting green, ball near flag in blurred background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"One Putt Queen",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, triumphant ecstatic fist pump celebration expression, putting green with hole and flag background, bright daylight, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Queen of Bogey",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, happy content carefree expression looking at scorecard, golf course background, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Bogey Happy Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, genuine warm happy smile expression after finishing hole, golf green with flag background, afternoon light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Main Fun Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, silly funny playful laughing expression having fun, beautiful golf course setting, bright daylight, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Friendly Match Golfer",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, warm friendly genuine sportsmanship smile, putting green background after a match, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"Weekend Golfer Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, relaxed weekend happy vibe expression in casual golf outfit, beautiful morning golf course with dewy grass, warm golden morning light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"},
+    {name:"The Carpet Lady",prompt:"close-up upper body photorealistic portrait photograph from chest up of a real woman golfer, same face and exact facial features as reference photo, anatomically correct, determined focused dedicated expression at driving range, ball buckets and hitting mat blurred in background, afternoon light, natural lighting, professional sports photography, shot on Canon EOS R5 85mm f1.4 lens, shallow depth of field, bokeh background, ultra detailed realistic skin texture and pores, 8k"}
+  ]
+};
+
+var currentImageBase64=null,currentRequestId=null,selectedGender='male';
+var MAX_GENERATES=10;
+
+function selectGender(el,gender){
+  document.querySelectorAll('.gender-opt').forEach(function(b){b.classList.remove('active')});
+  el.classList.add('active');selectedGender=gender;
+}
+function openCamera(){document.getElementById('cameraInput').click()}
+function handleFile(input){
+  var file=input.files&&input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');var MAX=1024;
+      var w=img.width,h=img.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX}else{w=Math.round(w*MAX/h);h=MAX}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      currentImageBase64=canvas.toDataURL('image/jpeg',0.85);
+      var preview=document.getElementById('preview');
+      preview.src=currentImageBase64;preview.classList.remove('hidden');
+      document.getElementById('photoPlaceholder').classList.add('hidden');
+      document.getElementById('photoArea').classList.add('has-photo');
+      document.getElementById('changePhoto').classList.add('active');
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file);
+}
+function showError(msg){
+  var el=document.getElementById('errorMsg');el.textContent=msg;el.classList.add('active');
+  setTimeout(function(){el.classList.remove('active')},5000);
+}
+function getCount(){return parseInt(localStorage.getItem('golferScanCount')||'0')}
+function incrementCount(){var c=getCount()+1;localStorage.setItem('golferScanCount',c.toString());updateCounter();return c}
+function updateCounter(){
+  var c=getCount();var container=document.getElementById('counter');var dotsHTML='';
+  for(var i=0;i<MAX_GENERATES;i++){
+    var cls='counter-dot';
+    if(i<c){cls+=' used';if(c>=8&&i>=7)cls+=' danger';else if(c>=6&&i>=5)cls+=' warn'}
+    dotsHTML+='<div class="'+cls+'"></div>';
+  }
+  container.innerHTML='<div class="counter-bar"><div class="counter-dots">'+dotsHTML+'</div><div class="counter-text">'+c+'/'+MAX_GENERATES+'</div></div>';
+  if(c>=MAX_GENERATES){document.getElementById('generateBtn').disabled=true;document.getElementById('subscribeHint').classList.add('active')}
+}
+var progressMessages=["Analyzing your swing DNA...","Checking your handicap vibes...","Scanning fairway personality...","Consulting the golf gods...","Reading your putt style...","Matching your golfer aura...","Almost on the green..."];
+function animateProgress(){var idx=0;var el=document.getElementById('progressText');return setInterval(function(){idx=(idx+1)%progressMessages.length;el.textContent=progressMessages[idx]},3500)}
+
+async function generate(){
+  if(!currentImageBase64){showError('Upload selfie dulu!');return}
+  if(getCount()>=MAX_GENERATES){showError('Limit tercapai! Subscribe untuk unlimited scans.');return}
+  var types=GOLFER_TYPES[selectedGender];
+  var selected=types[Math.floor(Math.random()*types.length)];
+  document.getElementById('generateBtn').disabled=true;
+  document.getElementById('resultSection').classList.remove('active');
+  document.getElementById('progress').classList.add('active');
+  var msgTimer=animateProgress();
+  try{
+    document.getElementById('progressSub').textContent='Uploading photo...';
+    var uploadRes=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:currentImageBase64})});
+    if(!uploadRes.ok){var m='Upload failed: '+uploadRes.status;try{var e=await uploadRes.json();m=e.error||m}catch(x){}throw new Error(m)}
+    var uploadData=await uploadRes.json();if(!uploadData.url)throw new Error('Upload failed: no URL');
+    document.getElementById('progressSub').textContent='AI sedang membuat portrait...';
+    var submitRes=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:selected.prompt,image_url:uploadData.url,id_weight:1,image_size:'portrait_4_3'})});
+    if(!submitRes.ok){var m2='Submit failed: '+submitRes.status;try{var e2=await submitRes.json();m2=e2.error||m2}catch(x2){}throw new Error(m2)}
+    var submitData=await submitRes.json();currentRequestId=submitData.request_id;
+    document.getElementById('progressSub').textContent='In queue...';
+    var imageUrl=await pollForResult(currentRequestId);
+    clearInterval(msgTimer);incrementCount();
+    document.getElementById('resultName').textContent=selected.name;
+    document.getElementById('resultImage').src=imageUrl;
+    document.getElementById('progress').classList.remove('active');
+    document.getElementById('resultSection').classList.add('active');
+    document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){clearInterval(msgTimer);console.error('Generate error:',err);showError(err.message||'Terjadi kesalahan, coba lagi.');document.getElementById('progress').classList.remove('active')}
+  finally{document.getElementById('generateBtn').disabled=getCount()>=MAX_GENERATES}
+}
+async function pollForResult(requestId){
+  var MAX_POLLS=60,attempt=0;
+  while(attempt<MAX_POLLS){
+    attempt++;await sleep(2500);
+    try{
+      var res=await fetch('/api/status?request_id='+requestId);if(!res.ok)continue;
+      var data=await res.json();
+      if(data.status==='IN_QUEUE'){document.getElementById('progressSub').textContent='In queue (pos: '+(data.queue_position||'...')+')';continue}
+      if(data.status==='IN_PROGRESS'){document.getElementById('progressSub').textContent='AI sedang membuat portrait...';continue}
+      if(data.status==='COMPLETED'){
+        var rr=await fetch('/api/result?request_id='+requestId);var rd=await rr.json();
+        if(rd.fal_error){var d=rd.detail||'Failed';if(typeof d==='object')d=JSON.stringify(d);throw new Error('AI Error: '+d)}
+        if(rd.images&&rd.images[0]&&rd.images[0].url)return rd.images[0].url;
+        throw new Error('No image in result');
+      }
+      if(data.status==='FAILED')throw new Error('AI processing gagal, coba lagi.');
+    }catch(err){if(attempt>=MAX_POLLS)throw err}
+  }
+  throw new Error('Timeout - coba lagi.');
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function downloadImage(){var u=document.getElementById('resultImage').src;if(!u)return;var a=document.createElement('a');a.href=u;a.download='golfer-type.png';a.target='_blank';a.click()}
+function shareWA(){var name=document.getElementById('resultName').textContent;window.open('https://wa.me/?text='+encodeURIComponent('Tipe golfer gue: '+name+'! 🏌️⛳\nCek tipe golfer lo di: '+window.location.href))}
+function resetUI(){document.getElementById('resultSection').classList.remove('active');document.getElementById('progress').classList.remove('active');window.scrollTo({top:0,behavior:'smooth'})}
+updateCounter();
+</script>
+</body>
+</html>
